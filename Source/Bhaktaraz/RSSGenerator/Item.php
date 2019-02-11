@@ -27,6 +27,9 @@ class Item implements ItemInterface
     /** @var array */
     protected $categories = [];
 
+    /** @var array */
+    protected $elements = []; //para exibir outros elementos não especificados
+
     /** @var string */
     protected $guid;
 
@@ -164,6 +167,21 @@ class Item implements ItemInterface
         return $this;
     }
 
+    //add custom elements
+    public function addItemElement($element, $value, $attr = array())
+    {
+
+        $this->elements[] = [$element, $this->normalizeString($value)];
+
+        return $this;
+    }
+
+    private function normalizeString($string)
+    {
+        $string = html_entity_decode($string, ENT_HTML5,'utf-8');
+        $string = htmlspecialchars($string, ENT_QUOTES, 'utf-8', false);
+        return $string;
+    }
     /**
      * Return XML object
      * @return SimpleXMLElement
@@ -187,6 +205,12 @@ class Item implements ItemInterface
             if ($this->isPermalink === false) {
                 $guid->addAttribute('isPermaLink', 'false');
             }
+        }
+
+        foreach ($this->elements as $element) {
+
+            $_element = $xml->addChild($element[0], $element[1]);
+
         }
 
         foreach ($this->categories as $category) {
